@@ -1,3 +1,7 @@
+* {
+    box-sizing: border-box;
+}
+
 body,
 html {
     margin: 0;
@@ -6,16 +10,16 @@ html {
 
 body {
     background: #003300;
-
     font-family: monospace;
     color: #00ff00;
+    text-shadow: 0 0 20px #00cc00, 0 0 2px #00ff00;
     font-size: 20px;
     overflow: hidden;
 }
 
 .screen,
 .scan-lines,
-#output {
+#terminal {
     width: 100vw;
     height: 100vh;
     position: absolute;
@@ -32,7 +36,40 @@ body {
     background: repeating-linear-gradient(0deg, rgba(0, 0, 0, 1), rgba(0, 0, 0, 0) 6px, rgba(0,0,0,1) 10px);
 }
 
-#output {
+#terminal {
     padding: 40px;
-    text-shadow: 0 0 20px #00ff00, 0 0 2px #00ff00;
+}
+
+#input {
+    position: relative;
+    margin-top: 4px;
+}
+
+#input input[type=text] {
+    width: 100%;
+    font-size: 1em;
+    font-family: monospace;
+    background: none;
+    border: none;
+    color: #00ff00;
+    text-shadow: 0 0 20px #00cc00, 0 0 2px #00ff00;
+    height: 20px;
+    padding-left: 20px;
+}
+
+#input input[type=text]:focus,
+#input input[type=text]:active {
+    outline: none;
+}
+
+#input input[type=text]::selection {
+    color: #002200;
+    background: #00ff00;
+}
+
+#input:before {
+    content: ">";
+    position: absolute;
+    left: 0;
+    top: 2px;
 }

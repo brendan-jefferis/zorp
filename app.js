@@ -6,6 +6,12 @@ function render(text) {
   output.appendChild(content)
 }
 
-
+function focus (selector) {
+  const el = document.querySelector(selector)
+  if (el) el.focus()
+}
 
 render('Hello there.')
+focus('input')
+
+document.addEventListener('click', function() { focus('input') })
