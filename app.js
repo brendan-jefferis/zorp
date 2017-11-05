@@ -1,9 +1,14 @@
 
-function render(text) {
+let history = []
+
+function render() {
   const output = document.getElementById('output')
-  const content = document.createElement('div')
-  content.innerText = text
-  output.appendChild(content)
+  output.innerHTML = ''
+  history.forEach(function (text) {
+  	const line = document.createElement('div')
+  	line.innerText = text
+  	output.appendChild(line)
+  })
 }
 
 function focus (selector) {
@@ -11,7 +16,20 @@ function focus (selector) {
   if (el) el.focus()
 }
 
-render('Hello there.')
+history.push('Hello there.')
+render()
 focus('input')
 
 document.addEventListener('click', function() { focus('input') })
+
+function handleKeyUp(e) {
+	if (e.keyCode !== 13) return
+
+	history.push(e.currentTarget.value)
+	e.currentTarget.value = ''
+	render()
+}
+
+const input = document.querySelector('input')
+input.value = ''
+input.addEventListener('keyup', handleKeyUp)
