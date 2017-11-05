@@ -1,38 +1,64 @@
 
-let history = []
+UI = (function() {
+  let history = []
+  let promptEvent = new Event('prompt_response')
+  let input
 
-function render() {
-  const output = document.getElementById('output')
-  output.innerHTML = ''
-  history.forEach(function (text) {
-    const line = document.createElement('div')
-    line.innerText = text
-    output.appendChild(line)
-    output.scrollTop = output.scrollHeight
-  })
-}
-
-function focus (selector) {
-  const el = document.querySelector(selector)
-  if (el) el.focus()
-}
-
-focus('input')
-document.addEventListener('click', function() { focus('input') })
-
-function handleKeyUp(e) {
-  if (e.keyCode !== 13) {
-    return
+  function init() {
+    input = document.querySelector('input')
+    input.value = ''
+    input.addEventListener('keyup', handleKeyUp)
+    document.addEventListener('click', function() { focus('input') })
+    focus('input')
   }
 
-  history.push(e.currentTarget.value)
-  e.currentTarget.value = ''
-  render()
-}
+  function clear() {
+    history = []
+  }
 
-const input = document.querySelector('input')
-input.value = ''
-input.addEventListener('keyup', handleKeyUp)
+  function prompt(text) {
+    print(text)
+    return new Promise(resolve => {
+      input.addEventListener('prompt_response', e => resolve(e.currentTarget.value))
+    })
+  }
 
-history.push('Hello there.')
-render()
+  function print(text) {
+    history.push(text)
+    render()
+  }
+
+  function render() {
+    const output = document.getElementById('output')
+    output.innerHTML = ''
+    history.forEach(function (text) {
+      const line = document.createElement('div')
+      line.innerHTML = text
+      output.appendChild(line)
+      output.scrollTop = output.scrollHeight
+    })
+  }
+
+  function focus (selector) {
+    const el = document.querySelector(selector)
+    if (el) el.focus()
+  }
+
+  function handleKeyUp(e) {
+    if (e.keyCode !== 13) {
+      return
+    }
+
+    history.push(`<br>> ${e.currentTarget.value}<br><br>`)
+    input.dispatchEvent(promptEvent)
+    e.currentTarget.value = ''
+    render()
+  }
+  
+  return {
+    init: init,
+    clear: clear,
+    prompt: prompt,
+    print: print
+  }
+})()
