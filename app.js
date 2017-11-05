@@ -28,6 +28,7 @@ function handleKeyUp(e) {
 	history.push(e.currentTarget.value)
 	e.currentTarget.value = ''
 	render()
+	window.scrollTo(0,document.body.scrollHeight)
 }
 
 const input = document.querySelector('input')
