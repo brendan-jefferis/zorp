@@ -1,4 +1,4 @@
-Story = (function() {
+Atlantis = (function() {
   function printTitle() {
     UI.print("================ THE LOST CITY OF ===============")
     UI.print("&nbsp;&nbsp;&nbsp;_____&nbsp;&nbsp;&nbsp;__&nbsp;&nbsp;.__&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;__&nbsp;&nbsp;.__&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;")
