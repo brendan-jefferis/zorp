@@ -17,9 +17,12 @@ UI = (function() {
   }
 
   function prompt(text) {
-    print(text)
+    if (text) print(text)
     return new Promise(function (resolve) {
-      input.addEventListener('prompt_response', function (e) {resolve(e.currentTarget.value)})
+      input.addEventListener('prompt_response', function (e) {
+        resolve(e.currentTarget.value)
+        e.currentTarget.removeEventListener('prompt_response')
+      })
     })
   }
 
@@ -49,7 +52,7 @@ UI = (function() {
       return
     }
 
-    history.push('<br>>' +  e.currentTarget.value + '<br><br>')
+    history.push('<br>> ' +  e.currentTarget.value + '<br><br>')
     input.dispatchEvent(promptEvent)
     e.currentTarget.value = ''
     render()
@@ -59,6 +62,7 @@ UI = (function() {
     init: init,
     clear: clear,
     prompt: prompt,
+    listen: prompt,
     print: print
   }
 })()
