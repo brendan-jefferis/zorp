@@ -1,8 +1,8 @@
 
 UI = (function() {
-  let history = []
-  let promptEvent = new Event('prompt_response')
-  let input
+  var history = []
+  var promptEvent = new Event('prompt_response')
+  var input
 
   function init() {
     input = document.querySelector('input')
@@ -16,11 +16,24 @@ UI = (function() {
     history = []
   }
 
+  // FIXME - remove this
   function prompt(text) {
-    print(text)
-    return new Promise(resolve => {
-      input.addEventListener('prompt_response', e => resolve(e.currentTarget.value))
+    if (text) print(text)
+    return new Promise(function (resolve) {
+      input.addEventListener('prompt_response', function (e) {
+        resolve(e.currentTarget.value)
+      })
     })
+  }
+
+  function listen(text, callback) {
+    if (typeof text === 'string') print(text)
+    if (typeof text === 'function') callback = text
+    function respond(e) {
+      callback(e.currentTarget.value)
+      input.removeEventListener('prompt_response', respond)
+    }
+    input.addEventListener('prompt_response', respond)
   }
 
   function print(text) {
@@ -49,7 +62,7 @@ UI = (function() {
       return
     }
 
-    history.push(`<br>> ${e.currentTarget.value}<br><br>`)
+    history.push('<br>> ' +  e.currentTarget.value + '<br><br>')
     input.dispatchEvent(promptEvent)
     e.currentTarget.value = ''
     render()
@@ -59,6 +72,7 @@ UI = (function() {
     init: init,
     clear: clear,
     prompt: prompt,
+    listen: listen,
     print: print
   }
 })()
