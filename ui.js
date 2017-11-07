@@ -16,14 +16,24 @@ UI = (function() {
     history = []
   }
 
+  // FIXME - remove this
   function prompt(text) {
     if (text) print(text)
     return new Promise(function (resolve) {
       input.addEventListener('prompt_response', function (e) {
         resolve(e.currentTarget.value)
-        e.currentTarget.removeEventListener('prompt_response')
       })
     })
+  }
+
+  function listen(text, callback) {
+    if (typeof text === 'string') print(text)
+    if (typeof text === 'function') callback = text
+    function respond(e) {
+      callback(e.currentTarget.value)
+      input.removeEventListener('prompt_response', respond)
+    }
+    input.addEventListener('prompt_response', respond)
   }
 
   function print(text) {
@@ -62,7 +72,7 @@ UI = (function() {
     init: init,
     clear: clear,
     prompt: prompt,
-    listen: prompt,
+    listen: listen,
     print: print
   }
 })()
