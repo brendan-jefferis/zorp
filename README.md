@@ -1,2 +1,2 @@
 # zorp
-A text adventure engine.
+A text adventure game engine.
