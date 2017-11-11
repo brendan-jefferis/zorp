@@ -1,7 +1,8 @@
 var inventory = [
-  {name: 'lens', description: 'a mysterious lens', use: 'reveal-secret'},
-  {name: 'binoculars', description: 'a well-used pair of binoculars with 4x zoom', use: 'view-distance'},
-  {name: 'magnifying glass', description: 'a large magnifying glass', use: 'view-detail'}
+  {name: 'lens', description: 'a magical lens that reveals secrets', fn: 'reveal-secret'},
+  {name: 'binoculars', description: 'a well-used pair of binoculars with 4x zoom', fn: 'view-distance'},
+  {name: 'magnifying glass', description: 'a large magnifying glass', fn: 'view-detail'},
+  {name: 'sword', description: 'a steel short sword', fn: 'attack', damage: 2}
 ]
 
 var area = {
@@ -11,82 +12,109 @@ var area = {
   description: 'the table is set for four guests',
   distance: 'distant mountains out the window',
   detail: 'you see hair fibres in the carpet',
-  items: [{
-    name: 'table',
-    description: 'a solid wooden table. You can barely make out a tiny engraved message.',
-    detail: 'the numbers 1 0 7 8 6',
-    secret: 'a hidden chamber'
-  }]
+  actors: [
+    {
+      name: 'troll',
+      description: 'a regular old troll',
+      detail: '',
+      secret: '',
+      health: 6
+    }
+  ],
+  items: [
+    {
+      name: 'table',
+      description: 'a solid wooden table. You can barely make out a tiny engraved message.',
+      detail: 'the numbers 1 0 7 8 6',
+      secret: 'a hidden chamber'
+    }
+  ]
 }
 
 Commands = (function() {
+  var DEFAULT_TARGET = area
 
-  function look(a) {
-    if (typeof a === 'function') {
-      return 'You see ' +  a(area)
-    } else if (!a) {
-      return 'You are in the ' +  area.title + '<br>' + area.description
+  var tempEquipped
+  var target
+
+  function look() {
+    if (!target) {
+      return 'You are in ' + DEFAULT_TARGET.title + '<br>' + DEFAULT_TARGET.description
     }
+    if (tempEquipped) {
+      return actions[tempEquipped.fn](target)
+    }
+    return target.description
+  }
+
+  function tempEquipItem(a) {
+    tempEquipped = a
     return a
   }
 
-  function at(a) {
-    // FIXME this is specific to look
-    return a.description || a
-  }
-
-  function with_(a) {
-    return a.use || a
+  function setTarget(a) {
+    target = a
+    return a
   }
 
   function revealSecret(a) {
-    return a.secret || a
+    return a.secret ? a.secret : 'Nothing is revealed'
   }
 
   function viewDistance(a) {
-    return a.distance || a
+    return a.distance ? a.distance : 'You don\'t see anything'
   }
 
   function viewDetail(a) {
-    return a.detail || a
+    return a.detail ? a.detail : 'You don\'t see anything of interest'
+  }
+
+  function hit(target, item) {
+    if (!target) {
+      return 'need a target to hit'
+    }
+    if (!item) {
+      return 'Need something to hit ' + target.name + ' with'
+    }
+    return 'You hit ' + target.name + ' with ' + item.name
   }
 
   var actions = {
     'look': look,
-    'at': at,
-    'with': with_,
+    'with': tempEquipItem,
+    'at': setTarget,
     'reveal-secret': revealSecret,
     'view-distance': viewDistance,
-    'view-detail': viewDetail
+    'view-detail': viewDetail,
+    'hit': hit
   }
 
   function parse(str) {
-    var tokens = str.split(' ').reverse()
-    return tokens.reduce(function (accum, val, i, arr) {
-      // FIXME - handle more than 2 word items
-      var item = lookupItem(val, inventory, area)
+    tempEquipped = null
+    target = DEFAULT_TARGET
+    var tokens = str.split(' ')
+    var command = tokens.shift()
+    if (!actions.hasOwnProperty(command)) {
+      return command + ' is not a valid instruction'
+    }
+    var args = tokens.reduce(function(accum, token, i, arr) {
+      var item = lookup(token, area, inventory)
       if (!item) {
-        item = lookupItem(arr[i+1] + ' ' + val, inventory, area)
-        if (item) {
-          delete arr[i+1]
-        }
+        item = lookup(token + ' ' + arr[i+1], area, inventory)
       }
-      if (item) {
-        if (actions.hasOwnProperty(accum)) {
-          return actions[accum](item)
-        }
-        return item
+      if (typeof last(accum) === 'function') {
+        accum.pop()(item)
+        return accum
       }
 
-      if (actions.hasOwnProperty(val)) {
-        if (actions.hasOwnProperty(accum)) {
-          return actions[val](actions[accum])
+      if (!item) {
+        if (actions.hasOwnProperty(token)) {
+          return accum.concat([actions[token]])
         }
-        return actions[val](accum)
       }
-
-      return val
-    }, '')
+      return item ? accum.concat([item]) : accum
+    }, [])
+    return actions[command].apply(this, args)
   }
 
   return {
@@ -94,16 +122,24 @@ Commands = (function() {
   }
 })()
 
-function lookupItem(name, inventory, area) {
+function lookup(name, area, inventory) {
+  inventory = inventory || []
   var item = find(name, inventory)
   if (!item) {
     item = find(name, area.items)
+  }
+  if (!item) {
+    item = find(name, area.actors)
   }
   return item
 }
 
 function find(name, arr) {
   return arr.find(function (x) { return x.name === name})
+}
+
+function last(arr) {
+  return arr[arr.length-1]
 }
 
 var t = 'hit troll with sword'
