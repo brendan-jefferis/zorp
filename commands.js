@@ -1,7 +1,7 @@
 var inventory = [
   {name: 'lens', description: 'a mysterious lens', use: 'reveal-secret'},
   {name: 'binoculars', description: 'a well-used pair of binoculars with 4x zoom', use: 'view-distance'},
-  {name: 'mg', description: 'a large magnifying glass', use: 'view-detail'}
+  {name: 'magnifying glass', description: 'a large magnifying glass', use: 'view-detail'}
 ]
 
 var area = {
@@ -9,7 +9,7 @@ var area = {
   coords: [1, 2],
   secret: 'a hidden door',
   description: 'the table is set for four guests',
-  distance: 'out the window you see distant mountains',
+  distance: 'distant mountains out the window',
   detail: 'you see hair fibres in the carpet',
   items: [{
     name: 'table',
@@ -27,10 +27,11 @@ Commands = (function() {
     } else if (!a) {
       return 'You are in the ' +  area.title + '<br>' + area.description
     }
-    return 'You see ' + a
+    return a
   }
 
   function at(a) {
+    // FIXME this is specific to look
     return a.description || a
   }
 
@@ -50,7 +51,7 @@ Commands = (function() {
     return a.detail || a
   }
 
-  var keywords = {
+  var actions = {
     'look': look,
     'at': at,
     'with': with_,
@@ -61,23 +62,27 @@ Commands = (function() {
 
   function parse(str) {
     var tokens = str.split(' ').reverse()
-    return tokens.reduce(function (accum, val) {
-      var item = lookup(val, inventory)
+    return tokens.reduce(function (accum, val, i, arr) {
+      // FIXME - handle more than 2 word items
+      var item = lookupItem(val, inventory, area)
       if (!item) {
-        item = lookup(val, area.items)
+        item = lookupItem(arr[i+1] + ' ' + val, inventory, area)
+        if (item) {
+          delete arr[i+1]
+        }
       }
       if (item) {
-        if (keywords.hasOwnProperty(accum)) {
-          return keywords[accum](item)
+        if (actions.hasOwnProperty(accum)) {
+          return actions[accum](item)
         }
         return item
       }
 
-      if (keywords.hasOwnProperty(val)) {
-        if (keywords.hasOwnProperty(accum)) {
-          return keywords[val](keywords[accum])
+      if (actions.hasOwnProperty(val)) {
+        if (actions.hasOwnProperty(accum)) {
+          return actions[val](actions[accum])
         }
-        return keywords[val](accum)
+        return actions[val](accum)
       }
 
       return val
@@ -89,8 +94,15 @@ Commands = (function() {
   }
 })()
 
+function lookupItem(name, inventory, area) {
+  var item = find(name, inventory)
+  if (!item) {
+    item = find(name, area.items)
+  }
+  return item
+}
 
-function lookup(name, arr) {
+function find(name, arr) {
   return arr.find(function (x) { return x.name === name})
 }
 
