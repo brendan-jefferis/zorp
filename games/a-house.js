@@ -30,17 +30,21 @@ House = (function () {
   function start () {
     UI.print('## A HOUSE ##')
 
-    function gameLoop (cell) {
-      UI.print('You are in the ' + cell.title)
-      UI.print('------------------------------------')
-      UI.print(cell.description)
-      UI.print('<br>')
-      World.possibleExitsMessage(world, cell)
-        .forEach(function (exit) {
-          UI.print(exit + '<br>')
-        })
+    function gameLoop (next) {
+      if (next.coords) {
+        UI.print('You are in the ' + next.title)
+        UI.print('------------------------------------')
+        UI.print(next.description)
+        UI.print('<br>')
+        World.possibleExitsMessage(world, next)
+          .forEach(function (exit) {
+            UI.print(exit + '<br>')
+          })
+      } else {
+        UI.print(next)
+      }
       UI.listen(function (response) {
-        gameLoop(World.move(world, response, cell))
+        gameLoop(Commands.parse(response))
       })
     }
 
