@@ -1,4 +1,10 @@
-House = (function () {
+import * as UI from '../ui'
+import * as World from '../world'
+import * as Commands from '../commands'
+
+UI.init()
+
+export default (function () {
 
   var bedroom = { title: 'Guest bedroom', coords: [0, 0], description: 'The room is empty, save for a heavily soiled mattress. The mattress is coated in a thick, still-wet layer of human excrement, with edge-to-edge coverage like they were buttering a piece of toast.'  }
   var masterBedroom = { title: 'Master bedroom', coords: [0, 1], description: 'A large king-size bed fills the entire room, there is no way to even walk around it.'  }
