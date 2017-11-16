@@ -13,11 +13,12 @@ export default (function () {
   const ikeaDesk = { name: 'desk', description: 'a plain white desk from Ikea. there are two drawers, one on the left and one on the right' }
   const leftDrawer = { name: 'left drawer', description: 'you see a scrap of paper' }
   const rightDrawer = { name: 'right drawer', description: 'you see a magnifying glass' }
+  const mattress = { name: 'mattress', description: 'the mattress is coated in a thick, still-wet layer of human excrement, with edge-to-edge coverage like they were buttering a piece of toast'}
 
-  const bedroom = { title: 'the guest bedroom', coords: [0, 0], items: [], description: 'The room is empty, save for a heavily soiled mattress. The mattress is coated in a thick, still-wet layer of human excrement, with edge-to-edge coverage like they were buttering a piece of toast.'  }
+  const bedroom = { title: 'the guest bedroom', coords: [0, 0], items: [mattress], description: 'The room is empty, save for a heavily soiled mattress.'  }
   const masterBedroom = { title: 'the master bedroom', coords: [0, 1], items: [],  description: 'A large king-size bed fills the entire room, there is no way to even walk around it.'  }
   const catRoom = { title: 'the cat room', coords: [0, 2], items: [],  description: 'There is no furniture. The cat sitting in the center of the room looks menacingly at you.'  }
-  const study = { title: 'the study', coords: [1, 0], items: [laptop, ikeaDesk, leftDrawer, rightDrawer],  description: 'You see an open laptop on a plain white Ikea desk. Covering the west wall is a large bookcase with many books. One of the books looks suspiciously like if you pulled on it a secret passage might open up. Under the desk, a grown woman attempts to hide but is given away by her giggling.'  }
+  const study = { title: 'the study', coords: [1, 0], items: [laptop, ikeaDesk, leftDrawer, rightDrawer],  description: 'You see an open laptop on a plain white Ikea desk. Covering the west wall is a large bookcase with many books. '  }
   const living = { title: 'the living room', coords: [1, 1], items: [],  description: 'The room is dominated by a large, flat-screen television which plays an animated gif of two doge where the one on the left licks the nose of the one on the right.'}
   const dining = { title: 'the dining room', coords: [1, 2], items: [table], description: 'The table is set for four guests'}
   const foyer = { title: 'the foyer', coords: [2, 0], items: [boots, draftExcluder], description: 'On the floor there is a pair of boots and a draft excluder'  }
