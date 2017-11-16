@@ -8,7 +8,7 @@ module.exports ={
     filename: 'app.js',
     path: path.resolve(__dirname, 'dist')
   },
-  devtool: 'eval-source-map',
+  devtool: 'source-map',
   devServer: {
     historyApiFallback: true
   },
@@ -17,5 +17,10 @@ module.exports ={
     new HtmlWebpackPlugin({
       template: './src/index.html'
     })
-  ]
+  ],
+  module: {
+    rules: [
+      { test: /\.js$/, exclude: /node_modules/, loader: "babel-loader" }
+    ]
+  }
 }
