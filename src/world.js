@@ -1,6 +1,6 @@
 function cellByDirection (world, direction, cell) {
-  var bounds = [world.length - 1, world[0].length - 1]
-  var coords = cell.coords
+  const bounds = [world.length - 1, world[0].length - 1]
+  const coords = cell.coords
   switch (direction) {
     case 'north':
       return world[coords[0] > 0 ? coords[0] - 1 : 0][coords[1]]
@@ -20,10 +20,10 @@ function cellByDirection (world, direction, cell) {
 }
 
 function exits(world, cell) {
-  var northCell = cellByDirection(world, 'north', cell)
-  var southCell = cellByDirection(world, 'south', cell)
-  var eastCell = cellByDirection(world, 'east', cell)
-  var westCell = cellByDirection(world, 'west', cell)
+  const northCell = cellByDirection(world, 'north', cell)
+  const southCell = cellByDirection(world, 'south', cell)
+  const eastCell = cellByDirection(world, 'east', cell)
+  const westCell = cellByDirection(world, 'west', cell)
   return {
     north: northCell !== cell ? northCell.title : '',
     south: southCell !== cell ? southCell.title : '',
@@ -33,7 +33,7 @@ function exits(world, cell) {
 }
 
 export function possibleExitsMessage(world, currentCell) {
-  var possibleExits = exits(world, currentCell)
+  const possibleExits = exits(world, currentCell)
   return Object
     .entries(possibleExits)
     .filter(function(x) { return x[1] !== ''})

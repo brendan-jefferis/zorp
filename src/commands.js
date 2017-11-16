@@ -1,49 +1,51 @@
-var inventory = [
-  {name: 'lens', description: 'a magical lens that reveals secrets', fn: 'reveal-secret'},
-  {name: 'binoculars', description: 'a well-used pair of binoculars with 4x zoom', fn: 'view-distance'},
-  {name: 'magnifying glass', description: 'a large magnifying glass', fn: 'view-detail'},
-  {name: 'sword', description: 'a steel short sword', fn: 'attack', damage: 2}
-]
+import { move } from './world'
 
-var area = {
-  title: 'dining room',
-  coords: [1, 2],
-  secret: 'a hidden door',
-  description: 'the table is set for four guests',
-  distance: 'distant mountains out the window',
-  detail: 'you see hair fibres in the carpet',
-  actors: [
-    {
-      name: 'troll',
-      description: 'a regular old troll',
-      detail: '',
-      secret: '',
-      health: 6
-    }
-  ],
-  items: [
-    {
-      name: 'table',
-      description: 'a solid wooden table. You can barely make out a tiny engraved message.',
-      detail: 'the numbers 1 0 7 8 6',
-      secret: 'a hidden chamber'
-    }
-  ]
+let tempEquipped
+let target
+let world
+
+const actions = {
+  'look': look,
+  'with': tempEquipItem,
+  'at': setTarget,
+  'reveal-secret': revealSecret,
+  'view-distance': viewDistance,
+  'view-detail': viewDetail,
+  'hit': hit,
+  'go': go
 }
-
-var DEFAULT_TARGET = area
-
-var tempEquipped
-var target
 
 function look() {
   if (!target) {
-    return 'You are in ' + DEFAULT_TARGET.title + '<br>' + DEFAULT_TARGET.description
+    return { message: 'you can\'t see that' }
+  }
+  if (target.coords && !tempEquipped) {
+    return { message: `You are in ${target.title}<br>${target.description}` }
   }
   if (tempEquipped) {
-    return actions[tempEquipped.fn](target)
+    return { message: actions[tempEquipped.fn](target) }
   }
-  return target.description
+  return { message: target.description }
+}
+
+function go(direction) {
+  if (!direction) {
+    return { message: 'what direction do you want to go in?' }
+  }
+  const newArea = move(world, direction, target)
+  return newArea === target
+    ? { message: `you cannot go ${direction}` }
+    : { area: newArea }
+}
+
+function hit(target) {
+  if (!target) {
+    return { message: 'need a target to hit' }
+  }
+  if (!tempEquipped) {
+    return { message: `Need something to hit ${target.name} with` }
+  }
+  return { message: `You hit ${target.name} with ${tempEquipped.name}` }
 }
 
 function tempEquipItem(a) {
@@ -68,38 +70,19 @@ function viewDetail(a) {
   return a.detail ? a.detail : 'You don\'t see anything of interest'
 }
 
-function hit(target, item) {
-  if (!target) {
-    return 'need a target to hit'
-  }
-  if (!item) {
-    return 'Need something to hit ' + target.name + ' with'
-  }
-  return 'You hit ' + target.name + ' with ' + item.name
-}
-
-var actions = {
-  'look': look,
-  'with': tempEquipItem,
-  'at': setTarget,
-  'reveal-secret': revealSecret,
-  'view-distance': viewDistance,
-  'view-detail': viewDetail,
-  'hit': hit
-}
-
-export function parse(str) {
+export function parse(str, state) {
   tempEquipped = null
-  target = DEFAULT_TARGET
-  var tokens = str.split(' ')
-  var command = tokens.shift()
+  target = state.area
+  world = state.world
+  const tokens = str.split(' ')
+  const command = tokens.shift()
   if (!actions.hasOwnProperty(command)) {
-    return command + ' is not a valid instruction'
+    return `${command} is not a valid instruction`
   }
-  var args = tokens.reduce(function(accum, token, i, arr) {
-    var item = lookup(token, area, inventory)
+  const args = tokens.reduce(function (accum, token, i, arr) {
+    let item = lookup(token, state.area, state.inventory)
     if (!item) {
-      item = lookup(token + ' ' + arr[i+1], area, inventory)
+      item = lookup(`${token} ${arr[i + 1]}`, state.area, state.inventory)
     }
     if (typeof last(accum) === 'function') {
       accum.pop()(item)
@@ -113,16 +96,17 @@ export function parse(str) {
     }
     return item ? accum.concat([item]) : accum
   }, [])
-  return actions[command].apply(this, args)
+  return Object.assign(state, actions[command].apply(this, args.concat(tokens)))
 }
-
 
 function lookup(name, area, inventory) {
   inventory = inventory || []
-  var item = find(name, inventory)
+  if (!area.items) return null
+  let item = find(name, inventory)
   if (!item) {
     item = find(name, area.items)
   }
+  if (!item && !area.actors) return null
   if (!item) {
     item = find(name, area.actors)
   }
@@ -136,13 +120,3 @@ function find(name, arr) {
 function last(arr) {
   return arr[arr.length-1]
 }
-
-var t = 'hit troll with sword'
-var g = 'get lamp'
-var m = 'go north'
-var l = 'look'
-var l2 = 'look at table'
-var l3 = 'look with binoculars'
-var l4 = 'look at table with lens'
-var l5 = 'look at table with magnifying glass'
-
